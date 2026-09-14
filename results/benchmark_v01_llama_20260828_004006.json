@@ -1,0 +1,55 @@
+{
+  "model_architecture": "Tiny_Llama",
+  "version": "v01_llama",
+  "timestamp": "20260828_004006",
+  "parameters": {
+    "total": 50669056,
+    "block_size": 256,
+    "vocab_size": 50304,
+    "n_layer": 8,
+    "n_head": 8,
+    "n_embd": 512,
+    "intermediate_size": 1344
+  },
+  "performance": {
+    "total_steps": 4,
+    "total_time_seconds": 12.57,
+    "peak_vram_mb": 4380.9,
+    "time_to_target_4_5": null,
+    "time_to_stretch_3_8": null,
+    "best_val_loss": 10.8899,
+    "final_val_loss": 10.8899
+  },
+  "eval_history": [
+    {
+      "step": 0,
+      "train_loss": 10.9331,
+      "val_loss": 10.9194,
+      "val_perplexity": 55238.66,
+      "elapsed_seconds": 4.66,
+      "vram_mb": 1883.7
+    },
+    {
+      "step": 2,
+      "train_loss": 10.9066,
+      "val_loss": 10.9231,
+      "val_perplexity": 55443.01,
+      "elapsed_seconds": 7.44,
+      "vram_mb": 4380.9
+    },
+    {
+      "step": 4,
+      "train_loss": 10.8922,
+      "val_loss": 10.8899,
+      "val_perplexity": 53630.31,
+      "elapsed_seconds": 11.25,
+      "vram_mb": 4380.9
+    }
+  ],
+  "sample_generation": {
+    "prompt": "To be, or not to be, that is the question:",
+    "sample": "To be, or not to be, that is the question: \"\u2026osis socialistGraph Submission Submission Microsoft honoringcakeosis replace Matrix Fri expected soften Challenges absurd AUTostics junior hypoc ripe Rehab PRES Dragonboundesty Jah substitutes Brunswick ammonia Bennett polluted colonizationsense brother Sch anxiety Dreadifice Orient",
+    "generation_time_sec": 0.704,
+    "tokens_per_sec": 56.8
+  }
+}
