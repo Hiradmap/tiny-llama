@@ -3,5 +3,9 @@ __pycache__/
 .ipynb_checkpoints/
 .vscode/
 .env
-checkpoints/
+checkpoints/*.pt
+checkpoints/*/*.pt
+checkpoints/**
+!checkpoints/
+!checkpoints/README.md
 train.bin
