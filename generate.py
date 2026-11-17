@@ -21,16 +21,16 @@ Autoregressive language models predict one token at a time:
 =============================================================================
 """
 
+import argparse
 import os
 import sys
 import time
-import argparse
 from typing import Tuple
-import torch
+
 import tiktoken
+import torch
 
-from model import TinyLlama, LlamaConfig
-
+from model import LlamaConfig, TinyLlama
 
 # ===========================================================================
 # 1. COMMAND LINE PARSING

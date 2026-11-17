@@ -19,14 +19,16 @@ Key Metrics Tracked:
 =============================================================================
 """
 
-import os
 import json
-import time
 import math
+import os
+import time
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional
+
 import torch
 
+from model import TinyLlama
 
 # ===========================================================================
 # 1. BENCHMARK TRACKER CLASS
@@ -131,7 +133,7 @@ class BenchmarkTracker:
 # ===========================================================================
 
 def evaluate_generation_quality(
-    model: torch.nn.Module,
+    model: TinyLlama,
     tokenizer: Any,
     device: str,
     prompt: str = "To be, or not to be, that is the question:",

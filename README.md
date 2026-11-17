@@ -56,7 +56,15 @@ Tiny_Llama/
 
 ## 5. Quickstart & Usage
 
-### 1. Training
+### 1. Python environment
+Use Python 3.10 or newer, then install the project dependencies in your selected environment:
+```bash
+python -m pip install -r requirements.txt
+```
+If your environment does not include `pip`, install with `uv pip install --python /path/to/your/python -r requirements.txt`.
+For GPU training, install a PyTorch build compatible with your CUDA setup.
+
+### 2. Training
 Launch the complete production training pipeline:
 ```bash
 python train.py
@@ -67,7 +75,7 @@ Key configurable flags:
 * `--grad_accum_steps 4`: Gradient accumulation multiplier (Effective Batch Size = 64).
 * `--eval_interval 500`: Evaluation frequency and checkpoint save interval.
 
-### 2. Interactive Generation
+### 3. Interactive Generation
 Chat with or prompt your trained model checkpoint:
 ```bash
 # Interactive REPL mode
@@ -77,7 +85,7 @@ python generate.py --interactive
 python generate.py --prompt "Once upon a time in a ancient realm" --temperature 0.8 --top_k 50
 ```
 
-### 3. Architecture Sanity Check
+### 4. Architecture Sanity Check
 Inspect parameter counts and verify tensor shapes:
 ```bash
 python model.py
@@ -94,3 +102,12 @@ python model.py
 * **Target Milestones**:
   - **4.50 Validation Loss**: Reached rapidly during warmup/early stable phase.
   - **3.80 Validation Loss**: Stretch target achieved during full cosine cooldown.
+
+### Observed Run Metrics (NVIDIA RTX 3050 6GB Laptop GPU)
+* **Parameters:** `50,669,056` (~50.67M total, weight-tied embeddings)
+* **Peak Training Throughput:** ~`15,350` tokens/sec (`bfloat16`, micro-batch `16` $\times$ grad accum `4` = `16,384` tokens/step)
+* **Peak VRAM Usage:** `4,572 MB`
+* **Best Saved Checkpoint (Step 4,500 / 10,000 stable phase):** Validation Loss **`4.2029`** (Perplexity **`66.88`**)
+
+> **Follow-Up Project:** See [**`tiny-llama-finetune`**](https://github.com/Hiradmap/tiny-llama-finetune) for Full-Weight SFT and from-scratch LoRA fine-tuning built on top of this pretrained checkpoint.
+

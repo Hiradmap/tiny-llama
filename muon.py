@@ -28,9 +28,11 @@ References:
 """
 
 from typing import Callable, List, Optional, Tuple, overload
+
 import torch
 import torch.nn as nn
 
+from model import TinyLlama
 
 # ===========================================================================
 # 1. NEWTON-SCHULZ 5TH-ORDER POLYNOMIAL ORTHOGONALIZATION
@@ -211,7 +213,7 @@ class Muon(torch.optim.Optimizer):
 # ===========================================================================
 
 def setup_optimizers(
-    model: nn.Module,
+    model: TinyLlama,
     lr_muon: float = 0.02,
     lr_adamw: float = 6e-4,
     weight_decay: float = 0.1,

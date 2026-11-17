@@ -32,19 +32,19 @@ applied directly to the modern Tiny_Llama architecture:
 =============================================================================
 """
 
+import argparse
+import math
 import os
 import time
-import math
-import argparse
 from typing import Tuple
-import torch
+
 import tiktoken
+import torch
 
-from model import TinyLlama, LlamaConfig
-from dataset import MemmapDataLoader
-from muon import setup_optimizers
 from benchmark import BenchmarkTracker, evaluate_generation_quality, save_results
-
+from dataset import MemmapDataLoader
+from model import LlamaConfig, TinyLlama
+from muon import setup_optimizers
 
 # ===========================================================================
 # 1. COMMAND LINE HYPERPARAMETERS

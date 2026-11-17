@@ -9,3 +9,5 @@ checkpoints/**
 !checkpoints/
 !checkpoints/README.md
 train.bin
+val.bin
+*.docx

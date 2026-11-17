@@ -3,17 +3,6 @@
   "venv": "ml-env",
   "pythonVersion": "3.13",
   "pythonPlatform": "Linux",
-  "typeCheckingMode": "off",
-  "extraPaths": [
-    "/home/hirad/ml-env/lib/python3.13/site-packages",
-    "."
-  ],
-  "reportMissingImports": "none",
-  "reportMissingModuleSource": "none",
-  "reportAttributeAccessIssue": "none",
-  "reportCallIssue": "none",
-  "reportArgumentType": "none",
-  "reportGeneralTypeIssues": "none",
-  "reportOptionalMemberAccess": "none",
-  "reportOptionalCall": "none"
+  "typeCheckingMode": "basic",
+  "extraPaths": ["."]
 }

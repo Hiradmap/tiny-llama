@@ -38,12 +38,11 @@ inference throughput, and sample efficiency:
 """
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
-import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from typing import Optional
 
+import torch
+import torch.nn.functional as F
+from torch import nn
 
 # ===========================================================================
 # CONFIGURATION
@@ -134,6 +133,10 @@ class RMSNorm(nn.Module):
         return x * rsqrt * self.weight
 
 
+class ResidualProjection(nn.Linear):
+    """Linear projection initialized at a smaller scale for residual additions."""
+
+
 # ===========================================================================
 # 2. POSITIONAL ENCODING — Rotary Position Embeddings (RoPE)
 # ===========================================================================
@@ -176,6 +179,7 @@ class RotaryEmbedding(nn.Module):
         inv_freq = 1.0 / (self.theta ** (torch.arange(0, self.dim, 2).float() / self.dim)) 
         
         # Register as a non-trainable persistent buffer so it moves with the model device
+        self.inv_freq: torch.Tensor
         self.register_buffer("inv_freq", inv_freq, persistent=False)
 
         # Declare typed annotations so static type checkers (Pylance/pyright) know these
@@ -205,7 +209,7 @@ class RotaryEmbedding(nn.Module):
         self.register_buffer("cos_cached", emb.cos().unsqueeze(0).unsqueeze(0), persistent=False)
         self.register_buffer("sin_cached", emb.sin().unsqueeze(0).unsqueeze(0), persistent=False)
 
-    def forward(self, seq_len: int, device: torch.device, dtype: torch.dtype) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, seq_len: int, device: torch.device, dtype: torch.dtype) -> tuple[torch.Tensor, torch.Tensor]:
         """Returns cached (cos, sin) tensors sliced to the exact current sequence length."""
         # If input sequence exceeds existing cache size, dynamically extend cache
         if seq_len > self.cos_cached.shape[2]:
@@ -301,16 +305,13 @@ class LlamaAttention(nn.Module):
         self.v_proj = nn.Linear(config.n_embd, config.n_embd, bias=False)
         
         # Output Projection: Merges multi-head perspectives back into a single vector of size n_embd
-        self.o_proj = nn.Linear(config.n_embd, config.n_embd, bias=False)
+        self.o_proj = ResidualProjection(config.n_embd, config.n_embd, bias=False)
         
         # --- QK-Norm Modules ---
         # Independent RMSNorm instances applied to 64-dim Query and Key head vectors
         self.q_norm = RMSNorm(self.head_dim, eps=config.eps)
         self.k_norm = RMSNorm(self.head_dim, eps=config.eps)
         
-        # Tag residual output projection for scaled Gaussian initialization
-        self.o_proj.NANOGPT_SCALE_INIT = 1
-
     def forward(
         self,
         x: torch.Tensor,
@@ -408,10 +409,7 @@ class SwiGLU(nn.Module):
         self.up_proj = nn.Linear(config.n_embd, config.intermediate_size, bias=False)
         
         # Down Projection: Compresses the gated feature representation back to n_embd
-        self.down_proj = nn.Linear(config.intermediate_size, config.n_embd, bias=False)
-        
-        # Tag residual projection for scaled Gaussian initialization
-        self.down_proj.NANOGPT_SCALE_INIT = 1
+        self.down_proj = ResidualProjection(config.intermediate_size, config.n_embd, bias=False)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Step 1: Compute gate projection and apply SiLU activation: SiLU(x @ W_gate)
@@ -535,13 +533,13 @@ class TinyLlama(nn.Module):
         Scaled Gaussian Weight Initialization.
         
         Standard layers: Gaussian distribution with mean=0.0, std=0.02.
-        Residual projection layers (tagged with NANOGPT_SCALE_INIT):
+        Residual projection layers:
           Scaled down by 1 / sqrt(2 * n_layer) to keep activation variance ~1.0
           across deep residual addition highways.
         """
         if isinstance(module, nn.Linear):
             std = 0.02
-            if hasattr(module, 'NANOGPT_SCALE_INIT'):
+            if isinstance(module, ResidualProjection):
                 std *= (2 * self.config.n_layer) ** -0.5
             torch.nn.init.normal_(module.weight, mean=0.0, std=std)
             if module.bias is not None:
@@ -556,7 +554,7 @@ class TinyLlama(nn.Module):
         self,
         idx: torch.Tensor,
         targets: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    ) -> tuple[torch.Tensor, Optional[torch.Tensor]]:
         """
         Forward execution pass for training or inference.
         
